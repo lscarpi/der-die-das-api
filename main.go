@@ -17,6 +17,7 @@ func BootServer() {
 	router.Use(commonMiddleware)
 
 	router.HandleFunc("/{word}", GetDictWord)
+	router.HandleFunc("/", GetHome)
 
 	fmt.Println(fmt.Sprintf("Server ready and listening at port %s", port))
 	http.ListenAndServe(fmt.Sprintf(":%s", port), router)
