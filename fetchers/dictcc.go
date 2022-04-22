@@ -82,11 +82,25 @@ func findTableRow(body *[]byte) []byte {
 
 func findArticle(tableRow *[]byte, word string) ([]byte, bool) {
 
-	singularRegex, err := regexp.Compile(fmt.Sprintf("(der|die|das).*?%s.*?<span.*?>\\|", word))
+	singularSelectedRegex, err := regexp.Compile(fmt.Sprintf("(der|die|das)\\s<u>.*?%s<\\/u>.*\\|", word))
+	pluralSelectedRegex, err := regexp.Compile(fmt.Sprintf("\\|.*(der|die|das)\\s<u>.*?%s<\\/u>", word))
+	singularRegex, err := regexp.Compile(fmt.Sprintf("(der|die|das)\\s%s.*?<span.*?>\\|", word))
 	pluralRegex, err := regexp.Compile(fmt.Sprintf("\\|<\\/span>.*?(der|die|das)\\s.*?%s", word))
 
 	if err != nil {
 		log.Fatalln(err)
+	}
+
+	singularSelectedMatches := singularSelectedRegex.FindSubmatch(*tableRow)
+
+	if singularSelectedMatches != nil {
+		return singularSelectedMatches[1], false
+	}
+
+	pluralSelectedMatches := pluralSelectedRegex.FindSubmatch(*tableRow)
+
+	if pluralSelectedMatches != nil {
+		return pluralSelectedMatches[1], true
 	}
 
 	singularMatches := singularRegex.FindSubmatch(*tableRow)
