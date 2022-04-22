@@ -1,6 +1,9 @@
 package repositories
 
-import "DerDieDasApi/types"
+import (
+	"DerDieDasApi/types"
+	"strings"
+)
 
 type DictRepository struct {
 }
@@ -26,7 +29,7 @@ func (r DictRepository) Find(word string) (types.DictWord, bool) {
 func (r DictRepository) Store(dictWord types.DictWord) {
 	fb := Firebase{}
 
-	fb.Store("words", dictWord.Word, map[string]interface{}{
+	fb.Store("words", strings.Title(dictWord.Word), map[string]interface{}{
 		"article":   dictWord.Article,
 		"is_plural": dictWord.IsPlural,
 		"type":      dictWord.Type,

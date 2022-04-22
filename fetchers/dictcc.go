@@ -42,7 +42,7 @@ func (f DictCC) Fetch(word string) (types.DictWord, bool) {
 		return types.DictWord{}, false
 	}
 	// Then find the article and plural
-	article, plural := findArticle(&tableRow)
+	article, plural := findArticle(&tableRow, word)
 
 	return types.DictWord{
 		Word:     word,
@@ -71,14 +71,19 @@ func findTableRow(body *[]byte) []byte {
 		}
 	}
 
+	// If nothing is selected, then the first value should do
+	if len(result) > 0 {
+		return result[0]
+	}
+
 	// Reaching here, nothing found
 	return nil
 }
 
-func findArticle(tableRow *[]byte) ([]byte, bool) {
+func findArticle(tableRow *[]byte, word string) ([]byte, bool) {
 
-	singularRegex, err := regexp.Compile("<a.*?>(der|die|das).*?<u>.*?<\\/a>\\s?<span.*?>\\|")
-	pluralRegex, err := regexp.Compile("<span.*?>\\|<\\/span>\\s?<a.*?>(der|die|das).*?.*?<\\/a>")
+	singularRegex, err := regexp.Compile(fmt.Sprintf("(der|die|das).*?%s.*?<span.*?>\\|", word))
+	pluralRegex, err := regexp.Compile(fmt.Sprintf("\\|<\\/span>.*?(der|die|das)\\s.*?%s", word))
 
 	if err != nil {
 		log.Fatalln(err)

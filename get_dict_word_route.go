@@ -4,6 +4,7 @@ import (
 	"DerDieDasApi/handlers"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strings"
 )
 
 func GetDictWord(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +16,7 @@ func GetDictWord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	dictHandler := handlers.DictHandler{}
-	dictWord, err := dictHandler.GetDictWord(word)
+	dictWord, err := dictHandler.GetDictWord(strings.Title(word))
 	if err != nil {
 		w.Write(MakeErrorResponse(err.Error()))
 		return
