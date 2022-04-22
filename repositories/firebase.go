@@ -43,18 +43,7 @@ func (f Firebase) Store(collection, key string, data map[string]interface{}) {
 
 func getClient() *firestore.Client {
 
-	filename := "serviceAccount.json"
-
-	var app *firebase.App
-	var err error
-
-	if _, err := os.Stat(filename); errors.Is(err, os.ErrNotExist) {
-		app, err = firebase.NewApp(ctx, nil)
-	} else {
-		// Use a service account
-		sa := option.WithCredentialsFile("serviceAccount.json")
-		app, err = firebase.NewApp(ctx, nil, sa)
-	}
+	app, err := firebase.NewApp(ctx, nil, getClientOption())
 
 	if err != nil {
 		log.Fatalln(err)
@@ -67,4 +56,37 @@ func getClient() *firestore.Client {
 	}
 
 	return client
+}
+
+func getClientOption() option.ClientOption {
+
+	if option := getClientOptionWithJsonString(); option != nil {
+		return option
+	}
+
+	if option := getClientOptionWithFile(); option != nil {
+		return option
+	}
+
+	return nil
+}
+
+func getClientOptionWithFile() option.ClientOption {
+
+	filename := "serviceAccount.json"
+
+	if _, err := os.Stat(filename); errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+
+	return option.WithCredentialsFile(filename)
+}
+
+func getClientOptionWithJsonString() option.ClientOption {
+
+	if env := os.Getenv("GOOGLE_SERVICE_ACCOUNT"); env != "" {
+		return option.WithCredentialsJSON([]byte(env))
+	}
+
+	return nil
 }
